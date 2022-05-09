@@ -97,7 +97,7 @@ class RegisterActivity : AppCompatActivity() {
                 binding.btnRegister.setBackgroundColor(ContextCompat.getColor(this,
                     R.color.cyan_500))
                 binding.btnRegister.setOnClickListener {
-                    Toast.makeText(this, "send requst", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "send request", Toast.LENGTH_SHORT).show()
                 }
             } else {
                 binding.btnRegister.isEnabled = false

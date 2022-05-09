@@ -2,7 +2,8 @@ package com.example.antriankesehatan.ui.schedule
 
 import android.os.Bundle
 import android.view.*
-import androidx.activity.addCallback
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.antriankesehatan.R
@@ -33,18 +34,9 @@ class JadwalFragment : Fragment() {
 
 
         inputDate()
+        inputTime()
+        inputBpjs()
 
-
-        binding?.btnBackToFragmentDoctor?.setOnClickListener {
-            findNavController().apply {
-                navigate(R.id.action_jadwalFragment_to_doctorFragment)
-            }
-        }
-
-        val callback = requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            findNavController().navigate(R.id.action_jadwalFragment_to_doctorFragment)
-        }
-        callback.isEnabled = true
 
     }
 
@@ -68,7 +60,7 @@ class JadwalFragment : Fragment() {
 
                     binding?.edtInputDate?.setText(formattedDate)
                 }
-                show(parentFragmentManager, "Fragment Dialog Date")
+                show(this@JadwalFragment.requireActivity().supportFragmentManager, "DATE_PICKER")
 
             }
 
@@ -76,9 +68,30 @@ class JadwalFragment : Fragment() {
         }
     }
 
+    private fun inputTime(){
+        val listTime = listOf("Pagi - Jam 06:00-07:00", "Sore - Jam 17:00-22:00")
+        val adapter = ArrayAdapter(requireActivity(), R.layout.list_item_time, listTime)
+        (binding?.edtLayoutTime?.editText as? AutoCompleteTextView)?.setAdapter(adapter)
+    }
+
+    private fun inputBpjs(){
+        val listChoose = listOf("Menggunakan BPJS", "Tidak Menggunakan BPJS")
+        val adapter = ArrayAdapter(requireActivity(), R.layout.list_item_bpjs, listChoose)
+        (binding?.edtLayoutBpjs?.editText as? AutoCompleteTextView)?.setAdapter(adapter)
+    }
+
     override fun onPrepareOptionsMenu(menu: Menu) {
         menu.findItem(R.id.message_menu).isVisible = false
         super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            android.R.id.home -> {
+                findNavController().navigate(R.id.action_jadwalFragment_to_doctorFragment)
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 

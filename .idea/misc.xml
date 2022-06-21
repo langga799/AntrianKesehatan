@@ -19,12 +19,13 @@
         <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/fragment_change_profile.xml" value="0.25" />
         <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/fragment_dashboard.xml" value="0.25" />
         <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/fragment_doctor.xml" value="0.25" />
-        <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/fragment_home.xml" value="0.2" />
-        <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/fragment_jadwal.xml" value="0.25" />
+        <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/fragment_home.xml" value="0.264" />
+        <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/fragment_jadwal.xml" value="0.264" />
         <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/fragment_notifications.xml" value="0.25" />
         <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/fragment_profile.xml" value="0.264" />
         <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/fragment_riwayat.xml" value="0.25" />
-        <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/item_view_antrian.xml" value="0.4" />
+        <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/fragment_user.xml" value="0.23229166666666667" />
+        <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/item_view_antrian.xml" value="0.2" />
         <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/item_view_dokter.xml" value="0.25" />
         <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/item_view_message.xml" value="0.264" />
         <entry key="..\:/Users/langg/AndroidStudioProjects/AntrianKesehatan/app/src/main/res/layout/item_view_nomor_antrian.xml" value="0.4" />

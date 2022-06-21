@@ -10,7 +10,8 @@ class NetworkConfig {
 
     companion object{
       //  private const val BASE_URL = "http://192.168.43.99:8000/"
-        private const val BASE_URL = "http://192.168.1.2:8000/"
+      //  private const val BASE_URL = "http://192.168.1.2:8000/"
+        private const val BASE_URL = "http://192.168.1.9:8000/"
     }
 
     fun getApiService(): ApiService {

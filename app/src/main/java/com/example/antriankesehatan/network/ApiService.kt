@@ -4,12 +4,12 @@ import com.example.antriankesehatan.model.*
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.http.*
 
 
 interface ApiService {
 
+    // ======================================= Register
     @FormUrlEncoded
     @POST("api/register")
     fun requestRegister(
@@ -23,6 +23,7 @@ interface ApiService {
     ): Call<RegisterResponse>
 
 
+    // ======================================= Login
     @FormUrlEncoded
     @POST("api/login")
     fun requestLogin(
@@ -32,6 +33,14 @@ interface ApiService {
     ): Call<LoginResponse>
 
 
+    // ======================================= Get Profile User
+    @GET("api/user")
+    fun getProfile(
+        @Header("Authorization") token: String,
+    ): Call<GetProfileResponse>
+
+
+    // ======================================= Logout User
     @POST("api/logout")
     fun requestLogout(
         @Header("Authorization") apiKey: String,
@@ -39,12 +48,14 @@ interface ApiService {
     ): Call<LogoutResponse>
 
 
+    // ======================================= Get List Doctor
     @GET("api/dokter")
     fun getListDoctor(
-        @Header("Authorization") token:String
+        @Header("Authorization") token: String,
     ): Call<GetDoctorResponse>
 
 
+    // ======================================= Upload Photo User
     @Multipart
     @POST("api/user/photo")
     fun uploadPhoto(
@@ -53,6 +64,7 @@ interface ApiService {
     ): Call<ResponseBody>
 
 
+    // ======================================= Update Profile User
     @FormUrlEncoded
     @POST("api/user")
     fun updateProfile(
@@ -63,6 +75,35 @@ interface ApiService {
         @Field("jenis_kelamin") gender: String,
         @Field("alamat") address: String,
     ): Call<UpdateProfileResponse>
+
+
+    // ======================================= Register Patient
+    @FormUrlEncoded
+    @POST("api/pendaftaran")
+    fun setScheduleAntrian(
+        @Header("Authorization") token: String,
+        @Field("dokter_id") doctorId: String,
+        @Field("jam_praktek_id") jamPraktekId: String,
+        @Field("shiff") shiff: String,
+        @Field("tanggal_pendaftaran") tanggalPendaftaran: String,
+        @Field("transaksi") transaksi: String,
+        @Field("keluhan") keluhan: String,
+    ): Call<SetScheduleAntrianResponse>
+
+
+    // ======================================= Get Data Antrian Patient
+    @GET("api/antrian")
+    fun getNoAntrian(
+        @Header("Authorization") token: String,
+    ) : Call<GetAntrianResponse>
+
+
+    // ======================================= Get Searching Data Dokter
+    @GET("api/dokter")
+    fun searchDataDokter(
+        @Header("Authorization") token:String,
+        @Query("nama_dokter") query:String
+    ): Call<GetDoctorResponse>
 
 
 }

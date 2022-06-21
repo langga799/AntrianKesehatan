@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.antriankesehatan.R
-import com.example.antriankesehatan.databinding.FragmentProfileBinding
+import com.example.antriankesehatan.databinding.FragmentUserBinding
 import com.example.antriankesehatan.model.LogoutResponse
 import com.example.antriankesehatan.network.NetworkConfig
 import com.example.antriankesehatan.ui.auth.login.LoginActivity
@@ -25,9 +25,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class ProfileFragment : Fragment() {
+class UserFragment : Fragment() {
 
-    private var _binding: FragmentProfileBinding? = null
+    private var _binding: FragmentUserBinding? = null
     private val binding get() = _binding
     private lateinit var viewModel: ProfileViewModel
     private lateinit var preference: SharedPreference
@@ -36,7 +36,7 @@ class ProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        _binding = FragmentProfileBinding.inflate(layoutInflater, container, false)
+        _binding = FragmentUserBinding.inflate(layoutInflater, container, false)
         return binding?.root
     }
 

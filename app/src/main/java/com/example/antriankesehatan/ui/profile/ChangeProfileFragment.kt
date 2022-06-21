@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.antriankesehatan.R
 import com.example.antriankesehatan.databinding.FragmentChangeProfileBinding
+import com.example.antriankesehatan.model.GetProfileResponse
 import com.example.antriankesehatan.model.UpdateProfileResponse
 import com.example.antriankesehatan.network.NetworkConfig
 import com.example.antriankesehatan.utils.SharedPreference
@@ -23,6 +24,7 @@ class ChangeProfileFragment : Fragment() {
     private var _binding: FragmentChangeProfileBinding? = null
     private val binding get() = _binding!!
     private lateinit var preference: SharedPreference
+    private var listGender = ArrayList<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,15 +43,56 @@ class ChangeProfileFragment : Fragment() {
         preference = SharedPreference(requireActivity())
 
 
-        val listGender = listOf("Laki-laki", "Perempuan")
+        listGender = arrayListOf("Laki-laki", "Perempuan")
         val adapter = ArrayAdapter(requireActivity(), R.layout.list_item_gender, listGender)
         (binding.edtLayoutGender.editText as? AutoCompleteTextView)?.setAdapter(adapter)
+
+
+        getProfile()
 
         binding.btnSaveChanges.setOnClickListener {
             updateProfile()
         }
 
     }
+
+
+    private fun getProfile() {
+        val token = preference.getToken()
+        NetworkConfig().getApiService().getProfile("Bearer $token")
+            .enqueue(object : Callback<GetProfileResponse> {
+                override fun onResponse(
+                    call: Call<GetProfileResponse>,
+                    response: Response<GetProfileResponse>,
+                ) {
+                    if (response.isSuccessful) {
+                        val profile = response.body()?.data
+                        binding.apply {
+                            edtName.setText(profile?.name)
+                            edtTelp.setText(profile?.noTlp)
+
+                            when (profile?.jenisKelamin) {
+                                "Laki-laki" -> {
+                                    binding.edtGender.setText(binding.edtGender.adapter.getItem(0)
+                                        .toString(), false)
+                                }
+                                "Perempuan" -> {
+                                    binding.edtGender.setText(binding.edtGender.adapter.getItem(1)
+                                        .toString(), false)
+                                }
+                            }
+                            edtAddress.setText(profile?.alamat)
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<GetProfileResponse>, t: Throwable) {
+
+                }
+
+            })
+    }
+
 
     private fun updateProfile() {
         val token = preference.getToken()
@@ -70,7 +113,7 @@ class ChangeProfileFragment : Fragment() {
                 call: Call<UpdateProfileResponse>,
                 response: Response<UpdateProfileResponse>,
             ) {
-                Log.d("respone======", response.message())
+
                 if (response.isSuccessful) {
                     Toast.makeText(requireActivity(), "Update profil berhasil", Toast.LENGTH_SHORT)
                         .show()

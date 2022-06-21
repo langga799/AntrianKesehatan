@@ -23,6 +23,7 @@ class DoctorFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var preference: SharedPreference
+    private var listDataSearch: ArrayList<DataItemDokter> = ArrayList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,7 +45,35 @@ class DoctorFragment : Fragment() {
 
 
         getListDoctor()
+        searchDoctor()
     }
+
+    private fun searchDoctor() {
+
+        binding.searchDoctor.setOnQueryTextListener(object :
+            android.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (!query.isNullOrEmpty()) {
+                    requestSearchParameter(query)
+                    binding.searchDoctor.clearFocus()
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText.isNullOrEmpty()) {
+                    listDataSearch.clear()
+                    getListDoctor()
+                }
+                return true
+            }
+
+        })
+
+
+    }
+
+
 
     private fun getListDoctor() {
         val token = preference.getToken()
@@ -57,8 +86,32 @@ class DoctorFragment : Fragment() {
                     if (response.isSuccessful) {
                         val dataDoctor = response.body()?.data?.data
                         if (dataDoctor != null) {
+
                             setupRecyclerView(dataDoctor)
                         }
+                    }
+                }
+
+                override fun onFailure(call: Call<GetDoctorResponse>, t: Throwable) {
+
+                }
+
+            })
+    }
+
+
+    private fun requestSearchParameter(query: String) {
+        val token = preference.getToken()
+        NetworkConfig().getApiService().searchDataDokter("Bearer $token", query)
+            .enqueue(object : Callback<GetDoctorResponse> {
+                override fun onResponse(
+                    call: Call<GetDoctorResponse>,
+                    response: Response<GetDoctorResponse>,
+                ) {
+                    if (response.isSuccessful) {
+                        val data = response.body()?.data?.data!!
+                        listDataSearch = data as ArrayList<DataItemDokter>
+                        setupRecyclerView(listDataSearch)
                     }
                 }
 

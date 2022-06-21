@@ -35,9 +35,9 @@
 
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.antriankesehatan.ui.profile.ProfileFragment"
+        android:name="com.example.antriankesehatan.ui.profile.UserFragment"
         android:label="Profil"
-        tools:layout="@layout/fragment_profile">
+        tools:layout="@layout/fragment_user">
         <action
             android:id="@+id/action_profileFragment_to_changeProfileFragment"
             app:destination="@id/changeProfileFragment" />
@@ -70,6 +70,9 @@
             app:launchSingleTop="true"
             app:popUpTo="@id/mobile_navigation"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_jadwalFragment_to_antrianFragment"
+            app:destination="@id/antrianFragment" />
     </fragment>
     <fragment
         android:id="@+id/changePhotoFragment"

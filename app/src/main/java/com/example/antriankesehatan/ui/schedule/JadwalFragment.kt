@@ -13,13 +13,16 @@ import com.example.antriankesehatan.databinding.FragmentJadwalBinding
 import com.example.antriankesehatan.model.HariPraktekItem
 import com.example.antriankesehatan.model.SetScheduleAntrianResponse
 import com.example.antriankesehatan.network.NetworkConfig
+import com.example.antriankesehatan.utils.Helper
 import com.example.antriankesehatan.utils.SharedPreference
+import com.example.antriankesehatan.utils.loadImageView
 import com.google.android.material.datepicker.MaterialDatePicker
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class JadwalFragment : Fragment() {
@@ -60,13 +63,11 @@ class JadwalFragment : Fragment() {
         val bundlePhotoDokter = arguments?.getString("DATA_PHOTO_DOCTOR", "")
 
 
-
         Log.d("+++++++++++++++++++", bundleIDDokter.toString())
         Log.d("+++++++++++++++++++", bundleBidangDokter.toString())
         Log.d("+++++++++++++++++++", bundleNamaDokter.toString())
         Log.d("+++++++++++++++++++", bundleHariPraktekDokter.toString())
         Log.d("+++++++++++++++++++", bundlePhotoDokter.toString())
-
 
 
         for (hariPraktek in bundleHariPraktekDokter as ArrayList<HariPraktekItem>) {
@@ -83,6 +84,13 @@ class JadwalFragment : Fragment() {
             }
         }
 
+
+        binding?.ivDoctor?.let {
+            activity?.loadImageView(Helper.BASE_IMAGE_URL + bundlePhotoDokter.toString(),
+                it)
+        }
+        binding?.tvDoctorName?.text = bundleNamaDokter
+        binding?.tvDoctorType?.text = bundleBidangDokter
 
 
         inputDate()
@@ -164,7 +172,7 @@ class JadwalFragment : Fragment() {
             ) {
                 if (response.isSuccessful) {
                     Toast.makeText(requireActivity(), "Success", Toast.LENGTH_SHORT).show()
-                    findNavController().navigate(R.id.action_jadwalFragment_to_antrianFragment)
+                    findNavController().navigate(R.id.action_jadwalFragment_to_doctorFragment)
                 }
             }
 

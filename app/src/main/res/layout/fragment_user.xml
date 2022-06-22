@@ -31,7 +31,7 @@
         app:tint="#404040" />
 
     <TextView
-        android:id="@+id/textView14"
+        android:id="@+id/tv_person_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -57,7 +57,7 @@
         app:cardCornerRadius="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView14">
+        app:layout_constraintTop_toBottomOf="@+id/tv_person_name">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

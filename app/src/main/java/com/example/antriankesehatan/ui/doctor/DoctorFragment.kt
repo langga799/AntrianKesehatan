@@ -39,10 +39,6 @@ class DoctorFragment : Fragment() {
 
         preference = SharedPreference(requireActivity())
 
-        binding.circleImageView.setOnClickListener {
-            findNavController().navigate(R.id.action_doctorFragment_to_jadwalFragment)
-        }
-
 
         getListDoctor()
         searchDoctor()

@@ -106,4 +106,18 @@ interface ApiService {
     ): Call<GetDoctorResponse>
 
 
+    // ======================================= Get Riwayat
+    @GET("api/riwayat")
+    fun getHistoryPatient(
+        @Header("Authorization") token: String
+    ): Call<RiwayatResponse>
+
+
+    // ======================================= Get Antrian Saat Ini
+    @GET("api/antrian")
+    fun getAntrianSaatIni(
+        @Header("Authorization") token: String,
+        @Query("now") query: String
+    ): Call<CurrentAntrianResponse>
+
 }

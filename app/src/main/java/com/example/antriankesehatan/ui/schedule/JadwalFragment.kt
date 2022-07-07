@@ -86,7 +86,7 @@ class JadwalFragment : Fragment() {
 
 
         binding?.ivDoctor?.let {
-            activity?.loadImageView(Helper.BASE_IMAGE_URL + bundlePhotoDokter.toString(),
+            activity?.loadImageView(Helper.BASE_IMAGE_URL_DOKTER + bundlePhotoDokter.toString(),
                 it)
         }
         binding?.tvDoctorName?.text = bundleNamaDokter

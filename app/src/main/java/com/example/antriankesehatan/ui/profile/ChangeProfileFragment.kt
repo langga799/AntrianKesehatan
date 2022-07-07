@@ -43,7 +43,7 @@ class ChangeProfileFragment : Fragment() {
         preference = SharedPreference(requireActivity())
 
 
-        listGender = arrayListOf("Laki-laki", "Perempuan")
+        listGender = arrayListOf("Pria", "Wanita")
         val adapter = ArrayAdapter(requireActivity(), R.layout.list_item_gender, listGender)
         (binding.edtLayoutGender.editText as? AutoCompleteTextView)?.setAdapter(adapter)
 
@@ -72,11 +72,11 @@ class ChangeProfileFragment : Fragment() {
                             edtTelp.setText(profile?.noTlp)
 
                             when (profile?.jenisKelamin) {
-                                "Laki-laki" -> {
+                                "Pria" -> {
                                     binding.edtGender.setText(binding.edtGender.adapter.getItem(0)
                                         .toString(), false)
                                 }
-                                "Perempuan" -> {
+                                "Wanita" -> {
                                     binding.edtGender.setText(binding.edtGender.adapter.getItem(1)
                                         .toString(), false)
                                 }
@@ -100,6 +100,11 @@ class ChangeProfileFragment : Fragment() {
         val telp = binding.edtTelp.text.toString()
         val gender = binding.edtGender.text.toString()
         val address = binding.edtAddress.text.toString()
+        val bpjs = binding.edtBpjs.text.toString()
+
+        if (bpjs.isEmpty()){
+            binding.edtBpjs.setText("-")
+        }
 
         NetworkConfig().getApiService().updateProfile(
             "application/json",
@@ -107,7 +112,8 @@ class ChangeProfileFragment : Fragment() {
             name,
             telp,
             gender,
-            address
+            address,
+            bpjs
         ).enqueue(object : Callback<UpdateProfileResponse> {
             override fun onResponse(
                 call: Call<UpdateProfileResponse>,

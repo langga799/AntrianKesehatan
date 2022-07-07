@@ -20,6 +20,7 @@ interface ApiService {
         @Field("no_tlp") noTelp: String,
         @Field("jenis_kelamin") gender: String,
         @Field("alamat") address: String,
+        @Field("no_bpjs") bpjs: String
     ): Call<RegisterResponse>
 
 
@@ -74,6 +75,7 @@ interface ApiService {
         @Field("no_tlp") telp: String,
         @Field("jenis_kelamin") gender: String,
         @Field("alamat") address: String,
+        @Field("no_bpjs") bpjs: String,
     ): Call<UpdateProfileResponse>
 
 

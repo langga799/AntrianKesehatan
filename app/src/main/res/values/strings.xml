@@ -3,7 +3,7 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
-    <!-- TODO: Remove or change this placeholder text -->
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="edt_error_name">Kolom nama tidak boleh kosong</string>
     <string name="edt_error_phone">Kolom no. telepon tidak boleh kosong</string>
@@ -12,6 +12,6 @@
     <string name="edt_error_password_empty">Kolom password tidak boleh kosong</string>
     <string name="edt_error_email_valid">Email tidak valid</string>
     <string name="password_text_length">Password minimal 6 karakter</string>
-    <string name="text_male">Laki-laki</string>
-    <string name="text_female">Perempuan</string>
+    <string name="text_male">Pria</string>
+    <string name="text_female">Wanita</string>
 </resources>

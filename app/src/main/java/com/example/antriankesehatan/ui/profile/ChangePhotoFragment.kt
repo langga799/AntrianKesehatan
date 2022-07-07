@@ -2,29 +2,30 @@ package com.example.antriankesehatan.ui.profile
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.net.toFile
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.antriankesehatan.R
 import com.example.antriankesehatan.databinding.FragmentChangePhotoBinding
 import com.example.antriankesehatan.network.NetworkConfig
+import com.example.antriankesehatan.utils.Helper
 import com.example.antriankesehatan.utils.SharedPreference
+import com.example.antriankesehatan.utils.loadImageView
 import com.example.antriankesehatan.utils.toMultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
-import java.net.URI
 
 
 class ChangePhotoFragment : Fragment() {
@@ -47,6 +48,12 @@ class ChangePhotoFragment : Fragment() {
 
         preference = SharedPreference(requireActivity())
 
+//        val url = preference.getImage() ?: ""
+//        Log.d("image", url)
+//        activity?.loadImageView(Helper.BASE_IMAGE_URL_USER + url, binding.ivPhotoProfile)
+
+
+
         binding.btnChangeProfile.setOnClickListener {
             checkPermission()
         }
@@ -58,12 +65,12 @@ class ChangePhotoFragment : Fragment() {
             PackageManager.PERMISSION_DENIED
         ) {
             //permission denied
-            val permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE);
+            val permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
             //show popup to request runtime permission
-            requestPermissions(permissions, PERMISSION_CODE);
+            requestPermissions(permissions, PERMISSION_CODE)
         } else {
             //permission already granted
-            pickImageFromGallery();
+            pickImageFromGallery()
         }
 
     }
@@ -102,23 +109,41 @@ class ChangePhotoFragment : Fragment() {
         if (resultCode == Activity.RESULT_OK && requestCode == PICK_IMAGE) {
             binding.ivPhotoProfile.setImageURI(data?.data)
 
-            val fileUri: Uri = data?.data!!
-            val file = File(fileUri.path.toString())
 
-            Log.d("fileeeee", file.toString() + "====)" + fileUri)
+            val selectedImageUri: Uri = data?.data!!
+            val picturePath: String = getPath(requireActivity(), selectedImageUri)
+            Log.d("Picture Path", picturePath)
+
             binding.btnSaveImage.setOnClickListener {
-                fileUpload(file)
+                fileUpload(File(picturePath))
             }
+
+
         }
     }
 
-    private fun fileUpload(file: File) {
-        Log.d("TAG", file.name)
+    private fun getPath(context: Context, uri: Uri?): String {
+        var result: String? = null
+        val proj = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor = context.contentResolver.query(uri!!, proj, null, null, null)
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                val columnIndex = cursor.getColumnIndexOrThrow(proj[0])
+                result = cursor.getString(columnIndex)
+            }
+            cursor.close()
+        }
+        if (result == null) {
+            result = "Not found"
+        }
+        return result
+    }
+
+
+    private fun fileUpload(file: File?) {
+
         val token = preference.getToken()
-
         val image = file.toMultipartBody()
-
-        Log.d("TAG", image.toString())
 
         NetworkConfig().getApiService().uploadPhoto("Bearer $token", image!!)
             .enqueue(object : Callback<ResponseBody> {
@@ -126,17 +151,19 @@ class ChangePhotoFragment : Fragment() {
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>,
                 ) {
-                    Toast.makeText(requireActivity(), response.message(), Toast.LENGTH_SHORT)
+                    Toast.makeText(requireActivity().baseContext,
+                        "Foto berhasil disimpan",
+                        Toast.LENGTH_SHORT)
                         .show()
-                    if (response.isSuccessful) {
-                        Toast.makeText(requireActivity(), response.message(), Toast.LENGTH_SHORT)
-                            .show()
-                    }
+                 
+
+                        findNavController().navigate(R.id.action_changePhotoFragment_to_profileFragment)
+
                 }
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                     Toast.makeText(requireActivity(), t.message, Toast.LENGTH_SHORT).show()
-                    Log.d("aaa", t.message.toString())
+                    Log.d("Failure", t.message.toString())
                 }
 
             })
@@ -157,6 +184,34 @@ class ChangePhotoFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
+
+    private fun getProfile() {
+//        val token = preference.getToken()
+//        NetworkConfig().getApiService().getProfile("Bearer $token")
+//            .enqueue(object : Callback<GetProfileResponse> {
+//                override fun onResponse(
+//                    call: Call<GetProfileResponse>,
+//                    response: Response<GetProfileResponse>,
+//                ) {
+//                    if (response.isSuccessful) {
+//                        val profile = response.body()?.data
+//                        binding?.tvPersonName?.text = profile?.name
+//
+//
+//                        activity?.loadImageCircle(
+//                            Helper.BASE_IMAGE_URL_USER + profile?.photoProfile,
+//                            binding?.btnImageProfileCircle!!
+//                        )
+//
+//                    }
+//
+//                }
+//
+//                override fun onFailure(call: Call<GetProfileResponse>, t: Throwable) {
+//                }
+//
+//            })
+    }
 
     companion object {
         private const val PICK_IMAGE = 100

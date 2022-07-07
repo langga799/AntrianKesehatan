@@ -3,7 +3,6 @@ package com.example.antriankesehatan.ui.auth.register
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.util.Patterns
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -13,7 +12,6 @@ import androidx.core.content.ContextCompat
 import com.example.antriankesehatan.R
 import com.example.antriankesehatan.databinding.ActivityRegisterBinding
 import com.example.antriankesehatan.model.RegisterResponse
-import com.example.antriankesehatan.model.User
 import com.example.antriankesehatan.network.NetworkConfig
 import com.example.antriankesehatan.ui.auth.login.LoginActivity
 import com.example.antriankesehatan.utils.SharedPreference
@@ -48,7 +46,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
 
-    private fun fieldStream(){
+    private fun fieldStream() {
         val nameStream = RxTextView.textChanges(binding.edtName)
             .skipInitialValue()
             .map { name ->
@@ -125,8 +123,6 @@ class RegisterActivity : AppCompatActivity() {
     }
 
 
-
-
     private fun nameValidation(isValid: Boolean) {
         binding.edtLayoutName.error = if (isValid) getString(R.string.edt_error_name) else null
     }
@@ -160,6 +156,7 @@ class RegisterActivity : AppCompatActivity() {
         (binding.edtLayoutGender.editText as? AutoCompleteTextView)?.setAdapter(adapter)
     }
 
+
     private fun register() {
         val name = binding.edtName.text.toString()
         val telp = binding.edtTelp.text.toString()
@@ -168,8 +165,8 @@ class RegisterActivity : AppCompatActivity() {
         val email = binding.edtEmail.text.toString()
         val password = binding.edtPassword.text.toString()
         val passwordConfirmation = binding.edtPassword.text.toString()
+        val bpjs = binding.edtBpjs.text.toString()
 
-        Log.d("dataaaaa", telp)
 
         NetworkConfig().getApiService().requestRegister(
             name,
@@ -178,14 +175,16 @@ class RegisterActivity : AppCompatActivity() {
             passwordConfirmation,
             telp,
             gender,
-            address
-        ).enqueue(object : Callback<RegisterResponse>{
+            address,
+            bpjs
+        ).enqueue(object : Callback<RegisterResponse> {
             override fun onResponse(
                 call: Call<RegisterResponse>,
                 response: Response<RegisterResponse>,
             ) {
-                if (response.isSuccessful){
-                    Toast.makeText(this@RegisterActivity, "Register berhasil", Toast.LENGTH_SHORT).show()
+                if (response.isSuccessful) {
+                    Toast.makeText(this@RegisterActivity, "Register berhasil", Toast.LENGTH_SHORT)
+                        .show()
 
                     preference.saveToken(response.body()?.data?.accessToken!!)
 
@@ -195,7 +194,8 @@ class RegisterActivity : AppCompatActivity() {
                         finishAffinity()
                     }
                 } else {
-                    Toast.makeText(this@RegisterActivity, "Register gagal", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@RegisterActivity, "Register gagal", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
 

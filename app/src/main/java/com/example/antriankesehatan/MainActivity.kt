@@ -2,6 +2,7 @@ package com.example.antriankesehatan
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -11,6 +12,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.antriankesehatan.databinding.ActivityMainBinding
+import com.example.antriankesehatan.pusher.NotificationCustom
+import com.example.antriankesehatan.pusher.NotificationPusher
 import com.example.antriankesehatan.ui.pesan.MessageActivity
 import com.example.antriankesehatan.utils.gone
 import com.example.antriankesehatan.utils.visible
@@ -24,11 +27,14 @@ class MainActivity : AppCompatActivity() {
     private var backToast: Toast? = null
 
 
+    private val notificationPusher = NotificationPusher
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
 
         supportActionBar?.elevation = 0F
 
@@ -77,10 +83,13 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        addPusher()
     }
 
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_message, menu)
         return true
     }
@@ -101,13 +110,28 @@ class MainActivity : AppCompatActivity() {
             super.onBackPressed()
             return
         } else {
-            backToast = Toast.makeText(baseContext, "Tekan lagi untuk keluar", Toast.LENGTH_SHORT);
+            backToast = Toast.makeText(baseContext, "Tekan lagi untuk keluar", Toast.LENGTH_SHORT)
             backToast?.show()
         }
 
-        backPressedTime = System.currentTimeMillis();
+        backPressedTime = System.currentTimeMillis()
 
     }
+
+
+
+    private fun addPusher() {
+        notificationPusher.setUpPusher(this)
+        data(NotificationPusher.Message())
+    }
+
+    private fun data(message: NotificationPusher.Message){
+        val intent = Intent(this, NotificationCustom::class.java)
+        val  customNotification = NotificationCustom()
+        customNotification.sendMessageNotification(intent, this, message.title, message.desc)
+        Log.d("ooooooo", message.title+message.desc)
+    }
+
 
 
 }

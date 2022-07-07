@@ -4,6 +4,8 @@ import android.content.Context
 import android.view.View
 import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.example.antriankesehatan.network.NetworkConfig
+import com.example.antriankesehatan.network.NetworkConfig.Companion.BASE_URL
 import de.hdodenhof.circleimageview.CircleImageView
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -25,11 +27,13 @@ fun File?.toMultipartBody(name: String = "file"): MultipartBody.Part? {
     return MultipartBody.Part.createFormData(name, this.name, reqFile)
 }
 
-fun Context.loadImageCircle(url: String, image: CircleImageView) {
-    Glide.with(this)
-        .load(url)
-        .centerCrop()
-        .into(image)
+fun Context.loadImageCircle(url: String, image: CircleImageView?) {
+    if (image != null) {
+        Glide.with(this)
+            .load(url)
+            .centerCrop()
+            .into(image)
+    }
 }
 
 fun Context.loadImageView(url: String, image: ImageView) {
@@ -40,5 +44,6 @@ fun Context.loadImageView(url: String, image: ImageView) {
 }
 
 object Helper {
-    const val BASE_IMAGE_URL = "http://192.168.1.9:8000/public/photo_dokter/"
+    const val BASE_IMAGE_URL_DOKTER = "http://192.168.43.99:8000/public/photo_dokter/"
+    const val BASE_IMAGE_URL_USER = "${BASE_URL}storage/"
 }

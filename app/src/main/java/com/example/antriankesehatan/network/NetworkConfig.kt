@@ -9,9 +9,10 @@ import java.util.concurrent.TimeUnit
 class NetworkConfig {
 
     companion object{
-      //  private const val BASE_URL = "http://192.168.43.99:8000/"
+        const val BASE_URL = "http://192.168.43.99:8000/"
+       // const val BASE_URL = "http://192.45.132.86:8000/"
       //  private const val BASE_URL = "http://192.168.1.2:8000/"
-        private const val BASE_URL = "http://192.168.1.9:8000/"
+       // private const val BASE_URL = "http://192.168.1.9:8000/"
     }
 
     fun getApiService(): ApiService {

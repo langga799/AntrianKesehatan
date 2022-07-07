@@ -26,7 +26,7 @@ class SplashScreenActivity : AppCompatActivity() {
 
         preference = SharedPreference(this)
 
-        Log.d("login-info", preference.getLogin().toString())
+        //Log.d("login-info", preference.getLogin().toString())
         when(preference.getLogin()){
             true -> {
                 activityScope.launch {
@@ -43,6 +43,9 @@ class SplashScreenActivity : AppCompatActivity() {
                 }
             }
         }
+
+
+
     }
 
 }

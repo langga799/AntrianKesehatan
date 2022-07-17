@@ -1,9 +1,12 @@
 package com.example.antriankesehatan.ui.auth.login
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Patterns
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.antriankesehatan.MainActivity
@@ -105,28 +108,56 @@ class LoginActivity : AppCompatActivity() {
         val email = binding.edtEmail.text.toString()
         val password = binding.edtPassword.text.toString()
 
+        val builder = AlertDialog.Builder(this)
+        builder.setCancelable(false)
+        builder.setView(R.layout.progress)
+        val dialog: AlertDialog = builder.create()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        dialog.show()
+
         NetworkConfig().getApiService().requestLogin("bearer $token", email, password)
             .enqueue(object : Callback<LoginResponse> {
                 override fun onResponse(
                     call: Call<LoginResponse>,
                     response: Response<LoginResponse>,
                 ) {
-                    if (response.isSuccessful){
-                        Toast.makeText(this@LoginActivity, "Login success", Toast.LENGTH_SHORT).show()
-                        preference.saveLogin(true)
-                        preference.saveToken(response.body()?.data?.accessToken!!)
-                        activityScope.launch {
-                            delay(1000L)
-                            startActivity(Intent(baseContext, MainActivity::class.java))
-                            finishAffinity()
+
+                    when (response.code()) {
+                        200 -> {
+                            Toast.makeText(this@LoginActivity,
+                                response.body()?.meta?.message,
+                                Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+
+                            preference.saveLogin(true)
+                            preference.saveToken(response.body()?.data?.accessToken!!)
+                            activityScope.launch {
+                                delay(1000L)
+                                startActivity(Intent(baseContext, MainActivity::class.java))
+                                finishAffinity()
+                            }
                         }
-                    } else {
-                        Toast.makeText(baseContext, "Login gagal", Toast.LENGTH_SHORT).show()
+                        401 -> {
+                            Toast.makeText(this@LoginActivity,
+                                response.body()?.meta?.message,
+                                Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        }
+                        500 -> {
+                            Toast.makeText(this@LoginActivity,
+                                response.body()?.meta?.message,
+                                Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        }
                     }
+
+
                 }
 
                 override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                     Toast.makeText(baseContext, t.message, Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
                 }
 
             })

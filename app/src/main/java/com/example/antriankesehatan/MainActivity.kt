@@ -11,13 +11,17 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.work.WorkManager
 import com.example.antriankesehatan.databinding.ActivityMainBinding
-import com.example.antriankesehatan.pusher.NotificationCustom
 import com.example.antriankesehatan.pusher.NotificationPusher
+import com.example.antriankesehatan.pusher.ServiceNotification
 import com.example.antriankesehatan.ui.pesan.MessageActivity
 import com.example.antriankesehatan.utils.gone
 import com.example.antriankesehatan.utils.visible
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,6 +32,8 @@ class MainActivity : AppCompatActivity() {
 
 
     private val notificationPusher = NotificationPusher
+
+    private lateinit var workManager: WorkManager
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,14 +90,19 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        addPusher()
+     //   addPusher()
+
+//        CoroutineScope(Dispatchers.Main).launch {
+//            val intent = Intent(this@MainActivity, ServiceNotification::class.java)
+//            startService(intent)
+//        }
     }
 
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_message, menu)
-        return true
+        return false
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -121,16 +132,24 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun addPusher() {
+//        notificationPusher.setUpPusher(this)
+//        data(NotificationPusher.Message())
         notificationPusher.setUpPusher(this)
-        data(NotificationPusher.Message())
+     //   notificationPusher.pusherFeatures()
+
+
     }
 
-    private fun data(message: NotificationPusher.Message){
-        val intent = Intent(this, NotificationCustom::class.java)
-        val  customNotification = NotificationCustom()
-        customNotification.sendMessageNotification(intent, this, message.title, message.desc)
-        Log.d("ooooooo", message.title+message.desc)
+    override fun onDestroy() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val intent = Intent(this@MainActivity, ServiceNotification::class.java)
+            startService(intent)
+        }
+        super.onDestroy()
+
     }
+
+
 
 
 

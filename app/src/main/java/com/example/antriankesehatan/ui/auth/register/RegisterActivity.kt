@@ -2,11 +2,14 @@ package com.example.antriankesehatan.ui.auth.register
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Patterns
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.antriankesehatan.R
@@ -165,9 +168,19 @@ class RegisterActivity : AppCompatActivity() {
         val email = binding.edtEmail.text.toString()
         val password = binding.edtPassword.text.toString()
         val passwordConfirmation = binding.edtPassword.text.toString()
-        val bpjs = binding.edtBpjs.text.toString()
+        var bpjs = binding.edtBpjs.text.toString()
 
+        if (bpjs == "") {
+            bpjs = "-"
+        }
 
+        val builder = AlertDialog.Builder(this)
+        builder.setCancelable(false)
+        builder.setView(R.layout.progress)
+        val dialog: AlertDialog = builder.create()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        dialog.show()
         NetworkConfig().getApiService().requestRegister(
             name,
             email,
@@ -182,25 +195,47 @@ class RegisterActivity : AppCompatActivity() {
                 call: Call<RegisterResponse>,
                 response: Response<RegisterResponse>,
             ) {
-                if (response.isSuccessful) {
-                    Toast.makeText(this@RegisterActivity, "Register berhasil", Toast.LENGTH_SHORT)
-                        .show()
 
-                    preference.saveToken(response.body()?.data?.accessToken!!)
+                when (response.code()) {
+                    200 -> {
+                        Toast.makeText(this@RegisterActivity,
+                            response.body()?.meta?.message,
+                            Toast.LENGTH_SHORT)
+                            .show()
 
-                    activityScope.launch {
-                        delay(1000L)
-                        startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))
-                        finishAffinity()
+                        dialog.dismiss()
+                        preference.saveToken(response.body()?.data?.accessToken!!)
+
+                        activityScope.launch {
+                            delay(1000L)
+                            startActivity(Intent(this@RegisterActivity,
+                                LoginActivity::class.java))
+                            finishAffinity()
+                        }
                     }
-                } else {
-                    Toast.makeText(this@RegisterActivity, "Register gagal", Toast.LENGTH_SHORT)
-                        .show()
+                    401 -> {
+                        Toast.makeText(this@RegisterActivity,
+                            response.body()?.meta?.message,
+                            Toast.LENGTH_SHORT)
+                            .show()
+                        dialog.dismiss()
+                    }
+                    500 -> {
+                        Toast.makeText(this@RegisterActivity,
+                            response.body()?.meta?.message,
+                            Toast.LENGTH_SHORT)
+                            .show()
+                        dialog.dismiss()
+                    }
+
                 }
+
+
             }
 
             override fun onFailure(call: Call<RegisterResponse>, t: Throwable) {
                 Toast.makeText(this@RegisterActivity, t.message, Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
             }
 
         })

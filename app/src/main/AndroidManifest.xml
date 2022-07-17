@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.antriankesehatan">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -43,7 +44,12 @@
             android:enabled="true"
             android:exported="false"/>
 
-        <receiver android:name=".pusher.NotificationCustom" />
+        <service
+            android:name=".pusher.ServiceNotification"
+            android:stopWithTask="false"
+            android:exported="true">
+        </service>
+
     </application>
 
 </manifest>

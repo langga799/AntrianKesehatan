@@ -1,12 +1,15 @@
 package com.example.antriankesehatan.ui.profile
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.antriankesehatan.R
 import com.example.antriankesehatan.databinding.FragmentChangeProfileBinding
@@ -29,7 +32,7 @@ class ChangeProfileFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentChangeProfileBinding.inflate(layoutInflater, container, false)
         return binding.root
@@ -82,6 +85,7 @@ class ChangeProfileFragment : Fragment() {
                                 }
                             }
                             edtAddress.setText(profile?.alamat)
+                            edtBpjs.setText(profile?.noBpjs)
                         }
                     }
                 }
@@ -102,10 +106,17 @@ class ChangeProfileFragment : Fragment() {
         val address = binding.edtAddress.text.toString()
         val bpjs = binding.edtBpjs.text.toString()
 
-        if (bpjs.isEmpty()){
+        if (bpjs.isEmpty()) {
             binding.edtBpjs.setText("-")
         }
 
+        val builder = AlertDialog.Builder(requireActivity())
+            .setView(R.layout.progress)
+
+        val dialog = builder.create()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        dialog.show()
         NetworkConfig().getApiService().updateProfile(
             "application/json",
             "Bearer $token",
@@ -120,16 +131,42 @@ class ChangeProfileFragment : Fragment() {
                 response: Response<UpdateProfileResponse>,
             ) {
 
-                if (response.isSuccessful) {
-                    Toast.makeText(requireActivity(), "Update profil berhasil", Toast.LENGTH_SHORT)
-                        .show()
-                } else {
-                    Toast.makeText(requireActivity(), "Update profil gagal", Toast.LENGTH_SHORT)
-                        .show()
+                when (response.code()) {
+                    200 -> {
+                        dialog.dismiss()
+                        Toast.makeText(requireActivity(),
+                            response.body()?.meta?.message,
+                            Toast.LENGTH_SHORT)
+                            .show()
+                        val navController =
+                            activity?.findNavController(R.id.nav_host_fragment_activity_main)
+                        val id = navController?.currentDestination?.id
+                        if (id != null) {
+                            navController.popBackStack(id, true)
+                            navController.navigate(id)
+                        }
+                    }
+                    401 -> {
+                        dialog.dismiss()
+                        Toast.makeText(requireActivity(),
+                            response.body()?.meta?.message,
+                            Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    500 -> {
+                        dialog.dismiss()
+                        Toast.makeText(requireActivity(),
+                            response.body()?.meta?.message,
+                            Toast.LENGTH_SHORT)
+                            .show()
+                    }
                 }
+
+
             }
 
             override fun onFailure(call: Call<UpdateProfileResponse>, t: Throwable) {
+                dialog.dismiss()
                 Toast.makeText(requireActivity(), t.message, Toast.LENGTH_SHORT).show()
             }
 

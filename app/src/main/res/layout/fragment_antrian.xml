@@ -19,4 +19,15 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/item_view_nomor_antrian" />
 
+    <TextView
+        android:id="@+id/warning_nomor_antrian"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Anda masih belum mengantri"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/rv_no_antrian"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

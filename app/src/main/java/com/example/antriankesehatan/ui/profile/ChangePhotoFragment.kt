@@ -5,12 +5,15 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -48,10 +51,10 @@ class ChangePhotoFragment : Fragment() {
 
         preference = SharedPreference(requireActivity())
 
-//        val url = preference.getImage() ?: ""
-//        Log.d("image", url)
-//        activity?.loadImageView(Helper.BASE_IMAGE_URL_USER + url, binding.ivPhotoProfile)
 
+        val dataPhoto = arguments?.getString("URL_PHOTO") ?: ""
+        activity?.loadImageView(Helper.BASE_IMAGE_URL_USER + dataPhoto, binding.ivPhotoProfile)
+        Log.d("PHOTO", dataPhoto)
 
 
         binding.btnChangeProfile.setOnClickListener {
@@ -145,23 +148,40 @@ class ChangePhotoFragment : Fragment() {
         val token = preference.getToken()
         val image = file.toMultipartBody()
 
+        val builder = AlertDialog.Builder(requireActivity())
+            .setView(R.layout.progress)
+
+        val dialog = builder.create()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        dialog.show()
         NetworkConfig().getApiService().uploadPhoto("Bearer $token", image!!)
             .enqueue(object : Callback<ResponseBody> {
                 override fun onResponse(
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>,
                 ) {
-                    Toast.makeText(requireActivity().baseContext,
-                        "Foto berhasil disimpan",
-                        Toast.LENGTH_SHORT)
-                        .show()
-                 
+                    if (response.isSuccessful) {
+                        dialog.dismiss()
+                        Toast.makeText(requireActivity().baseContext,
+                            response.message(),
+                            Toast.LENGTH_SHORT)
+                            .show()
 
                         findNavController().navigate(R.id.action_changePhotoFragment_to_profileFragment)
+
+                    } else {
+                        Toast.makeText(requireActivity().baseContext,
+                            response.message(),
+                            Toast.LENGTH_SHORT)
+                            .show()
+                    }
+
 
                 }
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    dialog.dismiss()
                     Toast.makeText(requireActivity(), t.message, Toast.LENGTH_SHORT).show()
                     Log.d("Failure", t.message.toString())
                 }
@@ -184,34 +204,6 @@ class ChangePhotoFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-
-    private fun getProfile() {
-//        val token = preference.getToken()
-//        NetworkConfig().getApiService().getProfile("Bearer $token")
-//            .enqueue(object : Callback<GetProfileResponse> {
-//                override fun onResponse(
-//                    call: Call<GetProfileResponse>,
-//                    response: Response<GetProfileResponse>,
-//                ) {
-//                    if (response.isSuccessful) {
-//                        val profile = response.body()?.data
-//                        binding?.tvPersonName?.text = profile?.name
-//
-//
-//                        activity?.loadImageCircle(
-//                            Helper.BASE_IMAGE_URL_USER + profile?.photoProfile,
-//                            binding?.btnImageProfileCircle!!
-//                        )
-//
-//                    }
-//
-//                }
-//
-//                override fun onFailure(call: Call<GetProfileResponse>, t: Throwable) {
-//                }
-//
-//            })
-    }
 
     companion object {
         private const val PICK_IMAGE = 100

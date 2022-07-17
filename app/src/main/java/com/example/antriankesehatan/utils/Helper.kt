@@ -44,6 +44,6 @@ fun Context.loadImageView(url: String, image: ImageView) {
 }
 
 object Helper {
-    const val BASE_IMAGE_URL_DOKTER = "http://192.168.43.99:8000/public/photo_dokter/"
+    const val BASE_IMAGE_URL_DOKTER = "http://pelayanandokterumum.my.id/public/photo_dokter/"
     const val BASE_IMAGE_URL_USER = "${BASE_URL}storage/"
 }

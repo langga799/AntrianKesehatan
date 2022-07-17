@@ -4,27 +4,25 @@ package com.example.antriankesehatan.ui.profile
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import com.example.antriankesehatan.MainActivity
 import com.example.antriankesehatan.R
+import com.example.antriankesehatan.alarmManager.AlarmWorker
 import com.example.antriankesehatan.alarmManager.AlarmReceiver
-import com.example.antriankesehatan.alarmManager.MyWorker
 import com.example.antriankesehatan.databinding.FragmentUserBinding
 import com.example.antriankesehatan.model.GetProfileResponse
 import com.example.antriankesehatan.model.LogoutResponse
@@ -58,6 +56,8 @@ class UserFragment : Fragment() {
     private lateinit var workManager: WorkManager
     private lateinit var periodicWorkRequest: PeriodicWorkRequest
 
+    private var urlPhoto = ""
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -77,35 +77,23 @@ class UserFragment : Fragment() {
         getProfile()
 
 
-        // =====================================================================================
         workManager = WorkManager.getInstance(requireActivity())
-
-        notifManager = activity?.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        alarmManager = activity?.getSystemService(ALARM_SERVICE) as AlarmManager
+        periodicWorkRequest =
+            PeriodicWorkRequest.Builder(AlarmWorker::class.java, PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS, TimeUnit.MINUTES)
+                .build()
 
         val alarmToggle = binding?.switchAlarm
-
-        val notifyIntent = Intent(requireActivity(), AlarmReceiver::class.java)
-        val alarmUp = (
-                PendingIntent.getBroadcast(requireActivity(),
-                    100,
-                    notifyIntent,
-                    PendingIntent.FLAG_NO_CREATE) != null
-                )
-
-        alarmToggle?.isChecked = alarmUp
-
-        notifyPendingIntent = PendingIntent.getBroadcast(requireActivity(),
-            100,
-            notifyIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
         alarmToggle?.setOnCheckedChangeListener { _, isChecked ->
-            when (isChecked) {
-                true -> setAlarm()
-                false -> cancelAlarm()
+            when(isChecked){
+                true -> setAlarmNotification()
+                false -> cancelAlarmNotification()
             }
+        }
+
+        Log.d("uuuuuuuuu", preference.getStateWorkAlarm().toString())
+        when(preference.getStateWorkAlarm()){
+            true -> alarmToggle?.isChecked = true
+            false -> alarmToggle?.isChecked = false
         }
 
         // =====================================================================================
@@ -115,42 +103,38 @@ class UserFragment : Fragment() {
                 findNavController().navigate(R.id.action_profileFragment_to_changeProfileFragment)
             }
             btnImageProfileCamera.setOnClickListener {
-                findNavController().navigate(R.id.action_profileFragment_to_changePhotoFragment)
+                val bundle = Bundle()
+                bundle.putString("URL_PHOTO", urlPhoto)
+                findNavController().navigate(R.id.action_profileFragment_to_changePhotoFragment, bundle)
             }
             btnImageProfileCircle.setOnClickListener {
-                findNavController().navigate(R.id.action_profileFragment_to_changePhotoFragment)
+                val bundle = Bundle()
+                bundle.putString("URL_PHOTO", urlPhoto)
+                findNavController().navigate(R.id.action_profileFragment_to_changePhotoFragment, bundle)
             }
             btnLogout.setOnClickListener {
                 logoutUser()
             }
         }
 
-        binding?.tvPersonName?.setOnClickListener {
-            // PERIODIC
-            periodicWorkRequest =
-                PeriodicWorkRequest.Builder(MyWorker::class.java, 2, TimeUnit.MINUTES)
-                    .build()
-            workManager.enqueue(periodicWorkRequest)
-            workManager.getWorkInfoByIdLiveData(periodicWorkRequest.id)
-                .observe(viewLifecycleOwner){ workInfo ->
-                    val status = workInfo.state.name
-                    Toast.makeText(requireActivity(), status, Toast.LENGTH_SHORT).show()
-                }
-
-        // Cancel periodic
-        //    workManager.cancelWorkById(periodicWorkRequest.id)
-
-            // ONE TIME TASK
-//            val oneTimeWorkRequest = OneTimeWorkRequest.Builder(MyWorker::class.java)
-//                .build()
-//            workManager.enqueue(oneTimeWorkRequest)
-//            workManager.getWorkInfoByIdLiveData(oneTimeWorkRequest.id)
-//                .observe(viewLifecycleOwner){ workInfo ->
-//                    val status = workInfo.state.name
-//                    Toast.makeText(requireActivity(), status, Toast.LENGTH_SHORT).show()
-//                }
-        }
     }
+
+
+    private fun setAlarmNotification() {
+        workManager.enqueue(periodicWorkRequest)
+        workManager.getWorkInfoByIdLiveData(periodicWorkRequest.id)
+            .observe(viewLifecycleOwner){ workInfo ->
+                val status = workInfo.state.name
+                Toast.makeText(requireActivity(), status, Toast.LENGTH_SHORT).show()
+            }
+        preference.saveWorkAlarm(true)
+    }
+
+    private fun cancelAlarmNotification() {
+        workManager.cancelWorkById(periodicWorkRequest.id)
+        preference.saveWorkAlarm(false)
+    }
+
 
 
     private fun logoutUser() {
@@ -165,6 +149,7 @@ class UserFragment : Fragment() {
             }
             .show()
     }
+
 
     private fun requestLogout() {
         val token = preference.getToken()
@@ -199,6 +184,7 @@ class UserFragment : Fragment() {
             })
     }
 
+
     private fun getProfile() {
         val token = preference.getToken()
         NetworkConfig().getApiService().getProfile("Bearer $token")
@@ -219,6 +205,8 @@ class UserFragment : Fragment() {
                                 (Helper.BASE_IMAGE_URL_USER + profile.photoProfile),
                                 binding?.btnImageProfileCircle!!
                             )
+
+                            urlPhoto = profile.photoProfile
                         }
 
                     }
@@ -233,58 +221,13 @@ class UserFragment : Fragment() {
     }
 
 
-    private fun setAlarm() {
-        val triggerTime: Long =
-            SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_FIFTEEN_MINUTES
-        val repeatInterval: Long = AlarmManager.INTERVAL_FIFTEEN_MINUTES
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + 60_000,
-            1_000,
-            notifyPendingIntent
-        )
-        Toast.makeText(requireActivity(), "Pengingat Diatur", Toast.LENGTH_SHORT).show()
-        deliverNotification(requireActivity())
-
-//        val data = Data.Builder()
-//            .putString(MyWorker.)
-
-
-    }
-
-    private fun cancelAlarm() {
-        alarmManager.cancel(notifyPendingIntent)
-        notifManager.cancelAll()
-        Toast.makeText(requireActivity(), "Pengingat Dibatalkan", Toast.LENGTH_SHORT).show()
-    }
-
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         menu.findItem(R.id.message_menu).isVisible = false
         super.onPrepareOptionsMenu(menu)
     }
 
-    private fun deliverNotification(context: Context) {
-        val notificationManager =
-            context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
-        val intent = Intent(context, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(context,
-            AlarmReceiver.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-
-
-        val builder = NotificationCompat.Builder(context)
-            .setSmallIcon(R.drawable.ic_doctor)
-            .setContentTitle("Pengingat Antrian")
-            .setContentText("Sebentar lagi giliran anda untuk periksa :) ")
-            .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .setAutoCancel(true)
-
-
-        notificationManager.notify(AlarmReceiver.NOTIFICATION_ID, builder.build())
-
-    }
 
 
 }

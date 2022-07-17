@@ -72,8 +72,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edt_telp"
             android:layout_width="match_parent"
-            android:inputType="number"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:inputType="number" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -205,8 +205,8 @@
         app:boxCornerRadiusTopEnd="16dp"
         app:boxCornerRadiusTopStart="16dp"
         app:boxStrokeWidth="2dp"
-        app:helperTextTextColor="@color/teal_200"
         app:helperText="*Kosongkan bila tidak menggunakan BPJS"
+        app:helperTextTextColor="@color/teal_200"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edt_layout_password">

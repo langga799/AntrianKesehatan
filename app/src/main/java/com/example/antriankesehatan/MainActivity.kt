@@ -90,12 +90,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-     //   addPusher()
 
-//        CoroutineScope(Dispatchers.Main).launch {
-//            val intent = Intent(this@MainActivity, ServiceNotification::class.java)
-//            startService(intent)
-//        }
+
+        CoroutineScope(Dispatchers.Default).launch {
+            val intent = Intent(this@MainActivity, ServiceNotification::class.java)
+            startService(intent)
+        }
     }
 
 
@@ -130,18 +130,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-    private fun addPusher() {
-//        notificationPusher.setUpPusher(this)
-//        data(NotificationPusher.Message())
-        notificationPusher.setUpPusher(this)
-     //   notificationPusher.pusherFeatures()
-
-
-    }
-
     override fun onDestroy() {
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.Default).launch {
             val intent = Intent(this@MainActivity, ServiceNotification::class.java)
             startService(intent)
         }

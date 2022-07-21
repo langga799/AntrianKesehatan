@@ -84,10 +84,10 @@ class UserFragment : Fragment() {
 
         val alarmToggle = binding?.switchAlarm
         alarmToggle?.setOnCheckedChangeListener { _, isChecked ->
-            when(isChecked){
-                true -> setAlarmNotification()
-                false -> cancelAlarmNotification()
-            }
+//            when(isChecked){
+//                true -> setAlarmNotification()
+//                false -> cancelAlarmNotification()
+//            }
         }
 
         Log.d("uuuuuuuuu", preference.getStateWorkAlarm().toString())

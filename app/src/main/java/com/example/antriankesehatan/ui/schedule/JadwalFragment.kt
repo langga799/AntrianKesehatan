@@ -40,10 +40,7 @@ class JadwalFragment : Fragment() {
     private var praktekId = ""
     private var inputJam = arrayListOf<String>()
     private var inputWaktu = arrayListOf<String>()
-
-
     private var dataHari = ArrayList<String>()
-    private var dataJadwal = ArrayList<JamPraktekItem>()
 
 
     override fun onCreateView(
@@ -63,7 +60,8 @@ class JadwalFragment : Fragment() {
         preference = SharedPreference(requireActivity())
 
 
-        val bundleIDDokter = arguments?.getString("DATA_ID_DOCTOR", "")
+        val bundleIDDokter = arguments?.getString("DATA_ID_DOCTOR", "") ?: ""
+        val bundlePraktekID = arguments?.getString("DATA_PRAKTEK_ID", "") ?: ""
         val bundleBidangDokter = arguments?.getString("DATA_BIDANG_DOCTOR", "")
         val bundleNamaDokter = arguments?.getString("DATA_NAMA_DOCTOR", "")
         val bundleHariPraktekDokter =
@@ -73,6 +71,7 @@ class JadwalFragment : Fragment() {
             arguments?.getSerializable("DATA_PRAKTEK") as ArrayList<JamPraktekItem>
 
 
+
         Log.d("+++++++++++++++++++", bundleIDDokter.toString())
         Log.d("+++++++++++++++++++", bundleBidangDokter.toString())
         Log.d("+++++++++++++++++++", bundleNamaDokter.toString())
@@ -80,58 +79,7 @@ class JadwalFragment : Fragment() {
         Log.d("+++++++++++++++++++", bundlePhotoDokter.toString())
 
 
-        for (hari in bundleHariPraktekDokter) {
-            dataHari.add(hari.hariPraktek)
-        }
 
-        Log.d("Data-Hari", dataHari.toString())
-
-
-//        val data = arrayListOf<JamPraktekItem>()
-//
-//        for (praktek in bundleHariPraktekDokter) {
-//            data.addAll(praktek.jamPraktek)
-//        }
-//
-//        for (new in data) {
-//            Log.d("jampraktek", new.jamPraktek)
-//            Log.d("waktupraktek", new.shift)
-//
-//        }
-
-
-//        for (praktek in bundleHariPraktekDokter as ArrayList<HariPraktekItem>) {
-//            praktekId = praktek.id.toString()
-//            doctorId = praktek.dokterId.toString()
-//
-//            Log.d("HARI-PRAKTEK", praktek.toString())
-//
-//            dataJadwal = praktek.jamPraktek
-
-
-        //  inputJam.clear()
-        //    inputWaktu.clear()
-
-//            for (jamPraktek in hariPraktek.jampraktek) {
-//                inputJam.clear()
-//                inputJam.add(jamPraktek.jamPraktek)
-//                Log.d("JAM-PRAKTEK", jamPraktek.toString())
-//            }
-
-//            for (shiffPraktek in hariPraktek.jampraktek){
-//                inputWaktu.clear()
-//                inputWaktu.add(shiffPraktek.shift)
-//            }
-
-
-        //      }
-
-
-//        for (jadwal in dataJadwal){
-//            inputJam.add(jadwal.jamPraktek)
-//            inputWaktu.add(jadwal.shift)
-//        }
-//
 
 
         binding?.ivDoctor?.let {
@@ -142,10 +90,34 @@ class JadwalFragment : Fragment() {
         binding?.tvDoctorType?.text = bundleBidangDokter
 
 
-        getProfile()
+        doctorId = bundleIDDokter
+        praktekId = bundlePraktekID
+
+        for (hari in bundleHariPraktekDokter) {
+            hari.dokterId
+            dataHari.add(hari.hariPraktek)
+        }
+        Log.d("Data-Hari", dataHari.toString())
+
+
         inputDate()
-        inputTime(inputJam)
+
+
+        for (jam in bundleDataPraktek) {
+            inputJam.add(jam.jamPraktek)
+        }
+
+        for (shiff in bundleDataPraktek) {
+            inputWaktu.add(shiff.shift)
+        }
+
+
+
         inputShiff(inputWaktu)
+
+        getProfile()
+
+
 
 
 
@@ -160,7 +132,7 @@ class JadwalFragment : Fragment() {
 
             val date = Calendar.getInstance()
             val dpd: DatePickerDialog =
-                DatePickerDialog.newInstance({ view, year, month, day ->
+                DatePickerDialog.newInstance({ _, year, month, day ->
                     val dateSelected = "$day-$month-$year"
                     binding?.edtInputDate?.setText(dateSelected)
                 },
@@ -179,6 +151,7 @@ class JadwalFragment : Fragment() {
                             val d = date.clone() as Calendar
                             activeDays.add(d)
                         }
+
                     }
                 }
 
@@ -188,6 +161,7 @@ class JadwalFragment : Fragment() {
                             val d = date.clone() as Calendar
                             activeDays.add(d)
                         }
+
                     }
                 }
 
@@ -197,6 +171,7 @@ class JadwalFragment : Fragment() {
                             val d = date.clone() as Calendar
                             activeDays.add(d)
                         }
+
                     }
                 }
 
@@ -206,6 +181,7 @@ class JadwalFragment : Fragment() {
                             val d = date.clone() as Calendar
                             activeDays.add(d)
                         }
+
                     }
                 }
 
@@ -215,6 +191,7 @@ class JadwalFragment : Fragment() {
                             val d = date.clone() as Calendar
                             activeDays.add(d)
                         }
+
                     }
                 }
 
@@ -224,6 +201,7 @@ class JadwalFragment : Fragment() {
                             val d = date.clone() as Calendar
                             activeDays.add(d)
                         }
+
                     }
                 }
 
@@ -233,6 +211,7 @@ class JadwalFragment : Fragment() {
                             val d = date.clone() as Calendar
                             activeDays.add(d)
                         }
+
                     }
                 }
 
@@ -250,71 +229,85 @@ class JadwalFragment : Fragment() {
 
 
         }
-
-
-//            val dateInput = MaterialDatePicker.Builder.datePicker()
-//                .setTitleText("Pilih tanggal")
-//                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
-//                .build()
-//
-//            dateInput.apply {
-//                addOnNegativeButtonClickListener {
-//                    dismiss()
-//                }
-//                addOnPositiveButtonClickListener {
-//                    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-//                    calendar.timeInMillis = selection!!
-//                    val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-//                    val formattedDate = format.format(calendar.time)
-//
-//
-//                    val newCalendar = Calendar.getInstance()
-//                    val today = newCalendar.timeInMillis
-//                    val oneDay = 24 * 60 * 60 * 1000L
-//
-//
-//
-//
-//                    binding?.edtInputDate?.setText(formattedDate)
-//                }
-//                show(this@JadwalFragment.requireActivity().supportFragmentManager, "DATE_PICKER")
-//
-//            }
-
-
     }
 
-    private fun inputTime(listJam: ArrayList<String>) {
-        Log.d("TIME", listJam.toString())
-        //   listJam.removeAt(2)
-        val adapter = ArrayAdapter(requireActivity(), R.layout.list_item_time, listJam)
-        (binding?.edtLayoutTime?.editText as? AutoCompleteTextView)?.setAdapter(adapter)
-    }
 
-    private fun inputShiff(listWaktu: ArrayList<String>) {
-        Log.d("WAKTU", listWaktu.toString())
-        //   listWaktu.removeAt(2)
-        val adapter = ArrayAdapter(requireActivity(), R.layout.list_item_time, listWaktu)
+    private fun inputShiff(listShiff: ArrayList<String>) {
+        Log.d("SHIFF", listShiff.toString())
+        val adapter = ArrayAdapter(requireActivity(), R.layout.list_item_time, listShiff.distinct())
         (binding?.edtLayoutDayNight?.editText as? AutoCompleteTextView)?.setAdapter(adapter)
+
+        val newListJam = inputJam.distinct()
+        val listener = binding?.edtLayoutDayNight?.editText as? AutoCompleteTextView
+
+        listener?.setOnItemClickListener { _, _, _, _ ->
+            when (newListJam.size) {
+                1 -> {
+                    when (listener.text.toString()) {
+                        "pagi" -> {
+                            val newJam = newListJam[0]
+                            Log.d("newjam", newJam)
+                            val newList = arrayListOf(newJam)
+                            val adapterJam =
+                                ArrayAdapter(requireActivity(), R.layout.list_item_time, newList)
+                            (binding?.edtLayoutTime?.editText as? AutoCompleteTextView)?.setAdapter(
+                                adapterJam)
+                            binding?.edtTime?.setText(newJam)
+                        }
+                        "malam" -> {
+                            val newJam = newListJam[0]
+                            val newList = arrayListOf(newJam)
+                            val adapterJam =
+                                ArrayAdapter(requireActivity(), R.layout.list_item_time, newList)
+                            (binding?.edtLayoutTime?.editText as? AutoCompleteTextView)?.setAdapter(
+                                adapterJam)
+                            binding?.edtTime?.setText(newJam)
+                        }
+                    }
+                }
+                2 -> {
+                    when (listener.text.toString()) {
+                        "pagi" -> {
+                            val newJam = newListJam[0]
+                            val newList = arrayListOf(newJam)
+                            val adapterJam =
+                                ArrayAdapter(requireActivity(), R.layout.list_item_time, newList)
+                            (binding?.edtLayoutTime?.editText as? AutoCompleteTextView)?.setAdapter(
+                                adapterJam)
+                            binding?.edtTime?.setText(newJam)
+                        }
+                        "malam" -> {
+                            val newJam = newListJam[1]
+                            val newList = arrayListOf(newJam)
+                            val adapterJam =
+                                ArrayAdapter(requireActivity(), R.layout.list_item_time, newList)
+                            (binding?.edtLayoutTime?.editText as? AutoCompleteTextView)?.setAdapter(
+                                adapterJam)
+                            binding?.edtTime?.setText(newJam)
+                        }
+                    }
+                }
+            }
+
+
+        }
+
+
     }
+
 
     private fun inputBpjs(dataBPJS: String) {
         Log.d("bpjS", dataBPJS)
-        var listChoose = arrayListOf<String>()
+        val listChoose = arrayListOf<String>()
 
         if (dataBPJS.isNotEmpty()) {
             listChoose.clear()
             listChoose.add(0, dataBPJS)
-            listChoose.add(1, "Anda tidak memiliki BPJS")
+            listChoose.add(1, "Tidak Menggunakan BPJS")
 
-            val adapter = ArrayAdapter(requireActivity(), R.layout.list_item_bpjs, listChoose)
-            (binding?.edtLayoutBpjs?.editText as? AutoCompleteTextView)?.setAdapter(adapter)
-        } else {
-            listChoose = arrayListOf("Menggunakan BPJS", "Tidak Menggunakan BPJS")
             val adapter = ArrayAdapter(requireActivity(), R.layout.list_item_bpjs, listChoose)
             (binding?.edtLayoutBpjs?.editText as? AutoCompleteTextView)?.setAdapter(adapter)
         }
-
 
     }
 
@@ -340,9 +333,26 @@ class JadwalFragment : Fragment() {
                 call: Call<SetScheduleAntrianResponse>,
                 response: Response<SetScheduleAntrianResponse>,
             ) {
+                when (response.code()) {
+                    200 -> {
+                        Toast.makeText(requireActivity(),
+                            response.body()?.meta?.message,
+                            Toast.LENGTH_SHORT).show()
+                        findNavController().navigate(R.id.action_jadwalFragment_to_doctorFragment)
+                    }
+                    401 -> {
+                        Toast.makeText(requireActivity(),
+                            response.body()?.meta?.message,
+                            Toast.LENGTH_SHORT).show()
+                    }
+                    500 -> {
+                        Toast.makeText(requireActivity(),
+                            response.body()?.meta?.message,
+                            Toast.LENGTH_SHORT).show()
+                    }
+                }
                 if (response.isSuccessful) {
-                    Toast.makeText(requireActivity(), "Success", Toast.LENGTH_SHORT).show()
-                    findNavController().navigate(R.id.action_jadwalFragment_to_doctorFragment)
+
                 }
             }
 
@@ -364,10 +374,6 @@ class JadwalFragment : Fragment() {
                 ) {
                     if (response.isSuccessful) {
                         val data = response.body()?.data
-//                        if (data?.noBpjs == null){
-//                            inputBpjs("-")
-//                        }
-//                        data?.noBpjs?.let { inputBpjs(it) }
                         when {
                             data?.noBpjs != null -> {
                                 inputBpjs(data.noBpjs)

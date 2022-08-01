@@ -20,7 +20,7 @@ interface ApiService {
         @Field("no_tlp") noTelp: String,
         @Field("jenis_kelamin") gender: String,
         @Field("alamat") address: String,
-        @Field("no_bpjs") bpjs: String
+        @Field("no_bpjs") bpjs: String,
     ): Call<RegisterResponse>
 
 
@@ -97,21 +97,21 @@ interface ApiService {
     @GET("api/antrian")
     fun getNoAntrian(
         @Header("Authorization") token: String,
-    ) : Call<GetAntrianResponse>
+    ): Call<GetAntrianResponse>
 
 
     // ======================================= Get Searching Data Dokter
     @GET("api/dokter")
     fun searchDataDokter(
-        @Header("Authorization") token:String,
-        @Query("nama_dokter") query:String
+        @Header("Authorization") token: String,
+        @Query("nama_dokter") query: String,
     ): Call<GetDoctorResponse>
 
 
     // ======================================= Get Riwayat
     @GET("api/riwayat")
     fun getHistoryPatient(
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
     ): Call<RiwayatResponse>
 
 
@@ -119,7 +119,7 @@ interface ApiService {
     @GET("api/antrian")
     fun getAntrianSaatIni(
         @Header("Authorization") token: String,
-        @Query("now") query: String
+        @Query("now") query: String,
     ): Call<CurrentAntrianResponse>
 
 }

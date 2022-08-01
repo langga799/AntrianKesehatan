@@ -18,14 +18,14 @@ class NetworkConfig {
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
             .build()
 
-        val gson = GsonBuilder()
-            .setLenient()
-            .create()
+//        val gson = GsonBuilder()
+//            .setLenient()
+//            .create()
 
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(httpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         return retrofit.create(ApiService::class.java)

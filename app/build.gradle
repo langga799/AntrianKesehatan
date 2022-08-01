@@ -74,6 +74,8 @@ dependencies {
     implementation 'com.pusher:pusher-java-client:2.2.1'
     implementation 'com.wdullaer:materialdatetimepicker:4.2.3'
 
+    implementation 'com.github.f0ris.sweetalert:library:1.6.2'
+
 
 }
 

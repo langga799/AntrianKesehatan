@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.example.antriankesehatan.MainActivity
 import com.example.antriankesehatan.R
 import com.example.antriankesehatan.databinding.ActivityLoginBinding
@@ -20,7 +21,6 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import io.reactivex.Observable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -81,7 +81,7 @@ class LoginActivity : AppCompatActivity() {
                     R.color.cyan_500))
 
                 binding.btnLogin.setOnClickListener {
-                    Toast.makeText(this, "send requst login", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "send request login", Toast.LENGTH_SHORT).show()
                     login()
                 }
 
@@ -125,29 +125,56 @@ class LoginActivity : AppCompatActivity() {
 
                     when (response.code()) {
                         200 -> {
-                            Toast.makeText(this@LoginActivity,
-                                response.body()?.meta?.message,
-                                Toast.LENGTH_SHORT).show()
+
+                            val popup =
+                                SweetAlertDialog(this@LoginActivity, SweetAlertDialog.SUCCESS_TYPE)
+                            popup.apply {
+                                titleText = "SUCCESS"
+                                contentText = "Login Berhasil"
+                                setCancelable(false)
+                                setConfirmButton("OK") {
+                                    activityScope.launch {
+                                        startActivity(Intent(baseContext, MainActivity::class.java))
+                                        finishAffinity()
+                                    }
+                                    dismiss()
+                                }
+                            }.show()
+
+
+//                            Toast.makeText(this@LoginActivity,
+//                                "Login Berhasil",
+//                                Toast.LENGTH_SHORT).show()
                             dialog.dismiss()
 
                             preference.saveLogin(true)
                             preference.saveToken(response.body()?.data?.accessToken!!)
-                            activityScope.launch {
-                                delay(1000L)
-                                startActivity(Intent(baseContext, MainActivity::class.java))
-                                finishAffinity()
-                            }
+
                         }
                         401 -> {
-                            Toast.makeText(this@LoginActivity,
-                                response.body()?.meta?.message,
-                                Toast.LENGTH_SHORT).show()
+                            val popup =
+                                SweetAlertDialog(this@LoginActivity, SweetAlertDialog.ERROR_TYPE)
+                            popup.apply {
+                                titleText = "ERROR"
+                                contentText = "Invalid email or password"
+                                setCancelable(false)
+                                setConfirmButton("OK") {
+                                    dismiss()
+                                }
+                            }.show()
                             dialog.dismiss()
                         }
                         500 -> {
-                            Toast.makeText(this@LoginActivity,
-                                response.body()?.meta?.message,
-                                Toast.LENGTH_SHORT).show()
+                            val popup =
+                                SweetAlertDialog(this@LoginActivity, SweetAlertDialog.ERROR_TYPE)
+                            popup.apply {
+                                titleText = "ERROR"
+                                contentText = "Internal Server Error"
+                                setCancelable(false)
+                                setConfirmButton("OK") {
+                                    dismiss()
+                                }
+                            }.show()
                             dialog.dismiss()
                         }
                     }

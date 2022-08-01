@@ -17,13 +17,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.example.antriankesehatan.R
 import com.example.antriankesehatan.databinding.FragmentChangePhotoBinding
 import com.example.antriankesehatan.network.NetworkConfig
+import com.example.antriankesehatan.ui.auth.login.LoginActivity
 import com.example.antriankesehatan.utils.Helper
 import com.example.antriankesehatan.utils.SharedPreference
 import com.example.antriankesehatan.utils.loadImageView
 import com.example.antriankesehatan.utils.toMultipartBody
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -163,18 +167,40 @@ class ChangePhotoFragment : Fragment() {
                 ) {
                     if (response.isSuccessful) {
                         dialog.dismiss()
-                        Toast.makeText(requireActivity().baseContext,
-                            response.message(),
-                            Toast.LENGTH_SHORT)
-                            .show()
 
-                        findNavController().navigate(R.id.action_changePhotoFragment_to_profileFragment)
+                        val popup =
+                            SweetAlertDialog(requireActivity(), SweetAlertDialog.SUCCESS_TYPE)
+                        popup.apply {
+                            titleText = "SUCCESS"
+                            contentText = "Unggah Foto Berhasil"
+                            setCancelable(false)
+                            setConfirmButton("OK") {
+                                findNavController().navigate(R.id.action_changePhotoFragment_to_profileFragment)
+                                dismiss()
+                            }
+                        }.show()
+
+//                        Toast.makeText(requireActivity().baseContext,
+//                            response.message(),
+//                            Toast.LENGTH_SHORT)
+//                            .show()
 
                     } else {
-                        Toast.makeText(requireActivity().baseContext,
-                            response.message(),
-                            Toast.LENGTH_SHORT)
-                            .show()
+                        val popup =
+                            SweetAlertDialog(requireActivity(), SweetAlertDialog.ERROR_TYPE)
+                        popup.apply {
+                            titleText = "ERROR"
+                            contentText = "Unggah Foto Gagal"
+                            setCancelable(false)
+                            setConfirmButton("OK") {
+                                dismiss()
+                            }
+                        }.show()
+
+//                        Toast.makeText(requireActivity().baseContext,
+//                            response.message(),
+//                            Toast.LENGTH_SHORT)
+//                            .show()
                     }
 
 

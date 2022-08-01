@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.util.Patterns
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -12,18 +13,23 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import cn.pedant.SweetAlert.SweetAlertDialog
+import com.example.antriankesehatan.MainActivity
 import com.example.antriankesehatan.R
 import com.example.antriankesehatan.databinding.ActivityRegisterBinding
 import com.example.antriankesehatan.model.RegisterResponse
 import com.example.antriankesehatan.network.NetworkConfig
 import com.example.antriankesehatan.ui.auth.login.LoginActivity
 import com.example.antriankesehatan.utils.SharedPreference
+import com.google.gson.Gson
 import com.jakewharton.rxbinding2.widget.RxTextView
 import io.reactivex.Observable
+import io.reactivex.internal.subscriptions.SubscriptionHelper.cancel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -198,33 +204,58 @@ class RegisterActivity : AppCompatActivity() {
 
                 when (response.code()) {
                     200 -> {
-                        Toast.makeText(this@RegisterActivity,
-                            response.body()?.meta?.message,
-                            Toast.LENGTH_SHORT)
-                            .show()
+
+                        val popup =
+                            SweetAlertDialog(this@RegisterActivity, SweetAlertDialog.SUCCESS_TYPE)
+                        popup.apply {
+                            titleText = "SUCCESS"
+                            contentText = "Register Berhasil"
+                            setCancelable(false)
+                            setConfirmButton("OK") {
+                                activityScope.launch {
+                                    delay(1000L)
+                                    startActivity(Intent(this@RegisterActivity,
+                                        LoginActivity::class.java))
+                                    finishAffinity()
+                                    Toast(this@RegisterActivity).cancel()
+                                }
+                            }
+                        }.show()
+
+//                       Toast.makeText(this@RegisterActivity,
+//                            response.body()?.meta?.message.toString(),
+//                            Toast.LENGTH_SHORT).show()
 
                         dialog.dismiss()
                         preference.saveToken(response.body()?.data?.accessToken!!)
+                        Log.d("token", response.body()?.data?.accessToken.toString())
 
-                        activityScope.launch {
-                            delay(1000L)
-                            startActivity(Intent(this@RegisterActivity,
-                                LoginActivity::class.java))
-                            finishAffinity()
-                        }
+
                     }
                     401 -> {
-                        Toast.makeText(this@RegisterActivity,
-                            response.body()?.meta?.message,
-                            Toast.LENGTH_SHORT)
-                            .show()
+                        val popup =
+                            SweetAlertDialog(this@RegisterActivity, SweetAlertDialog.ERROR_TYPE)
+                        popup.apply {
+                            titleText = "ERROR"
+                            contentText = "Something went wrong"
+                            setCancelable(false)
+                            setConfirmButton("OK") {
+                                dismiss()
+                            }
+                        }.show()
                         dialog.dismiss()
                     }
                     500 -> {
-                        Toast.makeText(this@RegisterActivity,
-                            response.body()?.meta?.message,
-                            Toast.LENGTH_SHORT)
-                            .show()
+                        val popup =
+                            SweetAlertDialog(this@RegisterActivity, SweetAlertDialog.ERROR_TYPE)
+                        popup.apply {
+                            titleText = "ERROR"
+                            contentText = "Internal Server Error"
+                            setCancelable(false)
+                            setConfirmButton("OK") {
+                                dismiss()
+                            }
+                        }.show()
                         dialog.dismiss()
                     }
 
@@ -239,6 +270,12 @@ class RegisterActivity : AppCompatActivity() {
             }
 
         })
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Toast(this@RegisterActivity).cancel()
 
     }
 }

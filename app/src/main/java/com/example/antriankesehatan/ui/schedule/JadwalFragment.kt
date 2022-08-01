@@ -5,9 +5,10 @@ import android.util.Log
 import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.example.antriankesehatan.R
 import com.example.antriankesehatan.databinding.FragmentJadwalBinding
 import com.example.antriankesehatan.model.GetProfileResponse
@@ -18,7 +19,9 @@ import com.example.antriankesehatan.network.NetworkConfig
 import com.example.antriankesehatan.utils.Helper
 import com.example.antriankesehatan.utils.SharedPreference
 import com.example.antriankesehatan.utils.loadImageView
+import com.jakewharton.rxbinding2.widget.RxTextView
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog
+import io.reactivex.Observable
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -56,6 +59,7 @@ class JadwalFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
+        binding?.btnSendRequestNoAntrian?.isEnabled = false
 
         preference = SharedPreference(requireActivity())
 
@@ -121,9 +125,8 @@ class JadwalFragment : Fragment() {
 
 
 
-        binding?.btnSendRequestNoAntrian?.setOnClickListener {
-            setRequestNoAntrian()
-        }
+        streamValidation()
+
     }
 
 
@@ -312,13 +315,123 @@ class JadwalFragment : Fragment() {
     }
 
 
+    // Stream Validation
+    private fun streamValidation(){
+        val dateStream = binding?.edtInputDate?.let {
+            RxTextView.textChanges(it)
+                .skipInitialValue()
+                .map { date ->
+                    date.isEmpty()
+                }
+        }
+        dateStream?.subscribe {
+            dateValidation(it)
+        }
+
+        val shiffStream = binding?.edtDayNight?.let {
+            RxTextView.textChanges(it)
+                .skipInitialValue()
+                .map { shiff ->
+                    shiff.isEmpty()
+                }
+        }
+        shiffStream?.subscribe {
+            shiffValidation(it)
+        }
+
+        val timeStream = binding?.edtTime?.let {
+            RxTextView.textChanges(it)
+                .skipInitialValue()
+                .map { time ->
+                    time.isEmpty()
+                }
+        }
+        timeStream?.subscribe {
+            timeValidation(it)
+        }
+
+        val keluhanStream = binding?.edtBpjs?.let {
+            RxTextView.textChanges(it)
+                .skipInitialValue()
+                .map { keluhan ->
+                    keluhan.isEmpty()
+                }
+        }
+        keluhanStream?.subscribe {
+            keluhanValidation(it)
+        }
+
+        val paymentStream = binding?.edtBpjs?.let {
+            RxTextView.textChanges(it)
+                .skipInitialValue()
+                .map { bpjs ->
+                    bpjs.isEmpty()
+                }
+        }
+        paymentStream?.subscribe{
+            paymentValidation(it)
+        }
+
+        val validationField = Observable.combineLatest(
+            dateStream,
+            shiffStream,
+            timeStream,
+            keluhanStream,
+            paymentStream
+        ){ textDate, textShiff, textTime, textKeluhan, textPayment ->
+            !textDate && !textShiff && !textTime && !textKeluhan && !textPayment
+        }
+        validationField.subscribe{ isValidValidation ->
+            if (isValidValidation){
+                binding?.btnSendRequestNoAntrian?.isEnabled = true
+                binding?.btnSendRequestNoAntrian?.setBackgroundColor(ContextCompat.getColor(requireActivity(),
+                    R.color.cyan_500))
+
+                binding?.btnSendRequestNoAntrian?.setOnClickListener {
+                    setRequestNoAntrian()
+                }
+
+            } else {
+                binding?.btnSendRequestNoAntrian?.isEnabled = false
+                binding?.btnSendRequestNoAntrian?.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.gray))
+            }
+
+        }
+    }
+
+    // Validation Field
+    private fun dateValidation(isValid: Boolean) {
+        binding?.textInputLayoutDate?.error =
+            if (isValid) "Tanggal tidak boleh kosong" else null
+    }
+
+    private fun shiffValidation(isValid: Boolean) {
+        binding?.edtLayoutDayNight?.error =
+            if (isValid) "Kolom waktu tidak boleh kosong" else null
+    }
+
+    private fun timeValidation(isValid: Boolean) {
+        binding?.edtLayoutTime?.error = if (isValid) "Kolom harus dipilih" else null
+    }
+
+    private fun keluhanValidation(isValid: Boolean) {
+        binding?.edtLayoutNotes?.error = if (isValid) "Kolom keluhan harus diisi" else null
+    }
+
+    private fun paymentValidation(isValid: Boolean) {
+        binding?.edtLayoutBpjs?.error = if (isValid) "Kolom bpjs harus diisi" else null
+    }
+
+
     private fun setRequestNoAntrian() {
         val token = preference.getToken()
 
         val inputDate = binding?.edtInputDate?.text.toString()
         val inputShiff = binding?.edtDayNight?.text.toString()
-        val inputBPJS = binding?.edtBpjs?.text.toString()
+        val inputTime = binding?.edtTime?.text.toString()
         val inputKeluhan = binding?.edtNotes?.text.toString()
+        val inputBPJS = binding?.edtBpjs?.text.toString()
+
 
         NetworkConfig().getApiService().setScheduleAntrian(
             token = "Bearer $token",
@@ -335,25 +448,59 @@ class JadwalFragment : Fragment() {
             ) {
                 when (response.code()) {
                     200 -> {
-                        Toast.makeText(requireActivity(),
-                            response.body()?.meta?.message,
-                            Toast.LENGTH_SHORT).show()
-                        findNavController().navigate(R.id.action_jadwalFragment_to_doctorFragment)
+                        val popup =
+                            SweetAlertDialog(requireActivity(), SweetAlertDialog.SUCCESS_TYPE)
+                        popup.apply {
+                            titleText = "SUCCESS"
+                            contentText = response.body()?.meta?.message
+                            setCancelable(false)
+                            setConfirmButton("OK") {
+                                findNavController().navigate(R.id.action_jadwalFragment_to_doctorFragment)
+                                dismiss()
+                            }
+                        }.show()
+
+//                        Toast.makeText(requireActivity(),
+//                            response.body()?.meta?.message,
+//                            Toast.LENGTH_SHORT).show()
+
                     }
                     401 -> {
-                        Toast.makeText(requireActivity(),
-                            response.body()?.meta?.message,
-                            Toast.LENGTH_SHORT).show()
+
+                        val popup =
+                            SweetAlertDialog(requireActivity(), SweetAlertDialog.ERROR_TYPE)
+                        popup.apply {
+                            titleText = "ERROR"
+                            contentText = response.body()?.meta?.message.toString()
+                            setCancelable(false)
+                            setConfirmButton("OK") {
+                                dismiss()
+                            }
+                        }.show()
+
+//                        Toast.makeText(requireActivity(),
+//                            response.body()?.meta?.message,
+//                            Toast.LENGTH_SHORT).show()
                     }
                     500 -> {
-                        Toast.makeText(requireActivity(),
-                            response.body()?.meta?.message,
-                            Toast.LENGTH_SHORT).show()
+
+                        val popup =
+                            SweetAlertDialog(requireActivity(), SweetAlertDialog.ERROR_TYPE)
+                        popup.apply {
+                            titleText = "ERROR"
+                            contentText = response.body()?.meta?.message.toString()
+                            setCancelable(false)
+                            setConfirmButton("OK") {
+                                dismiss()
+                            }
+                        }.show()
+
+//                        Toast.makeText(requireActivity(),
+//                            response.body()?.meta?.message,
+//                            Toast.LENGTH_SHORT).show()
                     }
                 }
-                if (response.isSuccessful) {
 
-                }
             }
 
             override fun onFailure(call: Call<SetScheduleAntrianResponse>, t: Throwable) {

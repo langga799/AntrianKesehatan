@@ -136,7 +136,7 @@ class JadwalFragment : Fragment() {
             val date = Calendar.getInstance()
             val dpd: DatePickerDialog =
                 DatePickerDialog.newInstance({ _, year, month, day ->
-                    val dateSelected = "$day-$month-$year"
+                    val dateSelected = "$year-$month-$day"
                     binding?.edtInputDate?.setText(dateSelected)
                 },
                     date[Calendar.YEAR],
